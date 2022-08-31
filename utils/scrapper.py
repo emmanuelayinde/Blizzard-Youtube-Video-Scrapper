@@ -45,14 +45,20 @@ def scrape_youtube(driver, WebDriverWait, By, EC):
     else:
         driver.get(latest_video)
         
-        time.sleep(5)
+        time.sleep(10)
 
-        intro = '📢--- New video spotted ---📢'
-        description = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "span.style-scope.yt-formatted-string"))).text
+        intro = '📢 New video spotted 📢'
+        try:
+            description = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div#content div#description div.ytd-video-secondary-info-renderer yt-formatted-string.ytd-video-secondary-info-renderer span.yt-formatted-string"))).text
+        except:
+            description = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "yt-formatted-string.ytd-video-secondary-info-renderer > span.yt-formatted-string"))).text 
+            # description = 'No Description'   
+
         url = driver.current_url
+        print(description)
         desc = format_description_text(description)
 
-        text = f"{intro}\n\n📺 {title}\n\n\"{desc}\"\n\nSource: {url}"
+        text = f"{intro}\n\n📺{title}\n\n\"{desc}\"\n\nSource: {url}"
 
         print('Youtube age...........................#####################################################')
         print(text)
