@@ -47,7 +47,7 @@ def scrape_youtube(driver, WebDriverWait, By, EC):
         
         time.sleep(10)
 
-        intro = '📢 New video spotted 📢'
+        intro = '📢 New Video Spotted 📢'
         try:
             description = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div#content div#description div.ytd-video-secondary-info-renderer yt-formatted-string.ytd-video-secondary-info-renderer span.yt-formatted-string"))).text
         except:
