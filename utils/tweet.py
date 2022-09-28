@@ -2,6 +2,8 @@ import os
 import tweepy
 from dotenv import load_dotenv
 
+from utils.date import now
+
 load_dotenv()
 
 # TWITTER API CREDENTIALS 
@@ -23,4 +25,5 @@ def tweet(tweet):
     response = client.update_status(
         status=tweet
     )
+    print('Tweeted........................', now())
    

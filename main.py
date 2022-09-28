@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from utils.date import now
 # from keep_alive import alive
 from utils.scrapper import scrape_youtube
 import chromedriver_autoinstaller
@@ -29,9 +30,9 @@ while True:
     #driver = webdriver.Chrome(os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     driver = webdriver.Chrome(service=Service(chromedriver_autoinstaller.install()), options=chrome_options)         
 
-    print('Scraping Youtube...........................')
+    print('Scraping Youtube...........................', now())
     scrape_youtube(driver, WebDriverWait, By, EC)
 
-    # Sleep for 1 min then continue
-    time.sleep(60)
+    # Sleep for 30secs then continue
+    time.sleep(30)
 

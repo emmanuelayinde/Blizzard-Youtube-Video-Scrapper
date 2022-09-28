@@ -1,6 +1,7 @@
 # IMPORT NECCESSARY LIB
 import os
 import time
+from utils.date import now
 from utils.formatter import format_description_text
 from utils.tweet import tweet
 
@@ -41,7 +42,7 @@ def scrape_youtube(driver, WebDriverWait, By, EC):
                 break
 
     if latest_video == None:
-        return print('No Latest video......')
+        return print('No Latest video......', now())
     else:
         driver.get(latest_video)
         
@@ -60,7 +61,7 @@ def scrape_youtube(driver, WebDriverWait, By, EC):
 
         text = f"{intro}\n\n📺{title}\n\n\"{desc}\"\n\nSource: {url}"
 
-        print('Youtube age...........................#####################################################')
+        print('Youtube Scrapper...........................#####################################################', now())
         print(text)
 
         # UPLOAD TO TWITTER
