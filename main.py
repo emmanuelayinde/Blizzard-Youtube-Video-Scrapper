@@ -6,7 +6,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from keep_alive import alive
+# from keep_alive import alive
 from utils.scrapper import scrape_youtube
 import chromedriver_autoinstaller
 
