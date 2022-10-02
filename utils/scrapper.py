@@ -11,11 +11,13 @@ trigger_Words = ['Trailer', 'Chat', 'Reveal', 'Announcement', 'Overview', 'Tease
 c_path = os.getcwd()
 
 def scrape_youtube(driver, WebDriverWait, By, EC):
-    driver.implicitly_wait(10)
     driver.get('https://www.youtube.com/c/Hearthstone/videos')
 
-    videos = WebDriverWait(driver, 30).until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "a.yt-simple-endpoint.style-scope.ytd-grid-video-renderer")))
-    time.sleep(0.5)
+    wait = WebDriverWait(driver, 60)
+    driver.implicitly_wait(10)
+
+    videos = wait.until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "a.yt-simple-endpoint.style-scope.ytd-grid-video-renderer")))
+    time.sleep(1)
 
     latest_video = None
 
@@ -48,24 +50,24 @@ def scrape_youtube(driver, WebDriverWait, By, EC):
         
         time.sleep(10)
 
-        intro = '📢 New Video Spotted 📢'
+        intro = '📢 New video spotted 📢'
         try:
-            description = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div#content div#description div.ytd-video-secondary-info-renderer yt-formatted-string.ytd-video-secondary-info-renderer span.yt-formatted-string"))).text
+            description = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div#content div#description div.ytd-video-secondary-info-renderer yt-formatted-string.ytd-video-secondary-info-renderer span.yt-formatted-string"))).text
         except:
-            description = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "yt-formatted-string.ytd-video-secondary-info-renderer > span.yt-formatted-string"))).text 
+            description = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "yt-formatted-string.ytd-video-secondary-info-renderer > span.yt-formatted-string"))).text 
             # description = 'No Description'   
 
         url = driver.current_url
         print(description)
         desc = format_description_text(description)
 
-        text = f"{intro}\n\n📺{title}\n\n\"{desc}\"\n\nSource: {url}"
+        text = f"{intro}\n\n📺 {title}\n📝 {desc}\n\n🌐 {url}"
 
         print('Youtube Scrapper...........................#####################################################', now())
         print(text)
 
         # UPLOAD TO TWITTER
-        tweet(text)
+        # tweet(text)   #PRODUCTION
         
         time.sleep(5)
         driver.quit()
