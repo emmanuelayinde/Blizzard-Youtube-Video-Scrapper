@@ -27,9 +27,8 @@ def scrape_youtube(driver, WebDriverWait, By, EC):
         if latest_video != None:
             break
         with open(c_path +"/data/data.txt") as f:
-            for line in f:
-                if line.strip() == video.get_attribute('href'):
-                    tweeted = True
+            if video.get_attribute('href') in f.read():
+                tweeted = True
                     
         if tweeted:
             continue

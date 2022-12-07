@@ -27,7 +27,6 @@ chrome_options.add_experimental_option('useAutomationExtension', False)
 #alive()
 
 while True:
-    #driver = webdriver.Chrome(os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     driver = webdriver.Chrome(service=Service(chromedriver_autoinstaller.install()), options=chrome_options)         
 
     print('Scraping Youtube...........................', now())
