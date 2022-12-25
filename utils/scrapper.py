@@ -4,6 +4,8 @@ import time
 from utils.date import now
 from utils.formatter import format_description_text
 from utils.tweet import tweet
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
 
 
 
@@ -12,62 +14,84 @@ c_path = os.getcwd()
 
 def scrape_youtube(driver, WebDriverWait, By, EC):
     driver.get('https://www.youtube.com/c/Hearthstone/videos')
+    ignored_exceptions=(NoSuchElementException,StaleElementReferenceException,)
 
-    wait = WebDriverWait(driver, 60)
-    driver.implicitly_wait(10)
+    wait = WebDriverWait(driver, 20, ignored_exceptions=ignored_exceptions)
 
-    videos = wait.until(EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "a.yt-simple-endpoint.style-scope.ytd-grid-video-renderer")))
-    time.sleep(1)
+    # videos = wait.until(EC.visibility_of_all_elements_located((By.XPATH, "a.yt-simple-endpoint.style-scope.ytd-grid-video-renderer")))
+    # //div[@id="contents" and @class="style-scope ytd-rich-grid-renderer"]/ytd-rich-grid-row/div/ytd-rich-item-renderer/div/ytd-rich-grid-media/div/ytd-thumbnail
+    videos = wait.until(EC.visibility_of_all_elements_located((By.XPATH, '//div[@id="contents" and @class="style-scope ytd-rich-grid-renderer"]/ytd-rich-grid-row/div/ytd-rich-item-renderer/div/ytd-rich-grid-media')))[:5]
+    
+    print("Video..................", len(videos))
+    time.sleep(2)
 
     latest_video = None
+    t = None
+    a = None
 
+    n = 0
     for video in videos: 
-        print(video.text)
+        t = video.find_element(By.XPATH, './/div/div[2]/div/h3').text
+        a = video.find_element(By.XPATH, './/div/div[2]/div/h3/a').get_attribute('href')
+        print(n, t)
+        print(n, a)
+        n += 1
+
         tweeted = False
-        if latest_video != None:
-            break
+        tweetable = False
+
         with open(c_path +"/data/data.txt") as f:
-            if video.get_attribute('href') in f.read():
+            if a in f.read():
                 tweeted = True
-                    
+
         if tweeted:
             continue
-        title = video.text
-        print(title)
+
+        d = get_description(driver, WebDriverWait, By, EC, a)
+
         for word in trigger_Words:
-            if word.lower() in title.lower():
+            if word.lower() in t.lower():
                 with open(c_path +"/data/data.txt", "a") as file:
-                    file.write(video.get_attribute('href') + '\n')
-                latest_video = video.get_attribute('href')
-                print(word)
+                    file.write(a + '\n')
+                latest_video = a
+                tweetable = True
+                print(word, t, a)
                 break
+
+
+        if tweetable:
+            break
+        else:
+            continue
 
     if latest_video == None:
         return print('No Latest video......', now())
     else:
-        driver.get(latest_video)
-        
-        time.sleep(10)
-
         intro = '📢 New video spotted 📢'
-        try:
-            description = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div#content div#description div.ytd-video-secondary-info-renderer yt-formatted-string.ytd-video-secondary-info-renderer span.yt-formatted-string"))).text
-        except:
-            description = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "yt-formatted-string.ytd-video-secondary-info-renderer > span.yt-formatted-string"))).text 
-            # description = 'No Description'   
 
-        url = driver.current_url
-        print(description)
-        desc = format_description_text(description)
+        # print(description)
+        # desc = format_description_text(description)
+        text = f"{intro}\n\n📺 {t}\n\n🌐 {a}\n\n{a}"
+        # text = f"{intro}\n\n📺 {t}\n\n{a}"
 
-        text = f"{intro}\n\n📺 {title}\n📝 {desc}\n\n🌐 {url}"
-
-        print('Youtube Scrapper...........................#####################################################', now())
         print(text)
 
         # UPLOAD TO TWITTER
-        tweet(text)   
+        # tweet(text)   
         
-        time.sleep(5)
         driver.quit()
 
+
+
+def get_description(driver, WebDriverWait, By, EC, link):
+    driver.get(link)
+    wait = WebDriverWait(driver, 20)
+
+    try:
+        description = wait.until(EC.visibility_of_all_elements_located((By.XPATH, '//ytd-text-inline-expander[@id="description-inline-expander" and @class="style-scope ytd-watch-metadata"]/yt-formatted-string[@class="style-scope ytd-text-inline-expander"]/span[@class="style-scope yt-formatted-string"]')))[0].text
+    except:
+        # description = wait.until(EC.visibility_of_element_located((By.XPATH, "yt-formatted-string.ytd-video-secondary-info-renderer > span.yt-formatted-string"))).text 
+        description = 'No Description'   
+
+    print("Description", description)
+    return description
